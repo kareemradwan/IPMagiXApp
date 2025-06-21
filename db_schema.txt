@@ -1,0 +1,43 @@
+Absolutely! Here’s your database schema in a simple, easy-to-read format:
+
+---
+
+## Tables and Columns
+
+### 1. ipx_compounds
+- **id** (Primary Key, Integer, Auto-increment)
+- **title** (Text)
+
+### 2. ipx_departments
+- **id** (Primary Key, Integer, Auto-increment)
+- **title** (Text)
+- **compound_id** (Foreign Key → ipx_compounds.id)
+
+### 3. ipx_documents
+- **id** (Primary Key, Integer, Auto-increment)
+- **title** (Text)
+- **url** (Text)
+- **size** (Number, e.g., file size in bytes)
+- **sha256** (Text, stores hash)
+- **compound_id** (Foreign Key → ipx_compounds.id)
+- **index_name** (Text)
+- **indexer_name** (Text)
+- **status** (Text)
+
+### 4. ipx_departments_documents
+- **compound_id** (Foreign Key → ipx_departments.id)
+- **document_id** (Foreign Key → ipx_documents.id)
+- *(Together, these two columns make a composite primary key)*
+
+---
+
+## Relationships
+
+- **ipx_departments.compound_id** links to **ipx_compounds.id**
+- **ipx_documents.compound_id** links to **ipx_compounds.id**
+- **ipx_departments_documents.compound_id** links to **ipx_departments.id**
+- **ipx_departments_documents.document_id** links to **ipx_documents.id**
+
+---
+
+If you want an ER diagram or a visual, let me know!
