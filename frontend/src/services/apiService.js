@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an axios instance with direct URL to Flask backend
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',  // Direct URL to Flask server on port 5001
+  baseURL: 'https://backend-prem-python-v5-dfadggaxfqhpdnbh.westus2-01.azurewebsites.net/api',  // Direct URL to Flask server on port 5001
   headers: {
     'Content-Type': 'application/json'
   },
