@@ -392,6 +392,7 @@ def search_database():
     query = data.get('query')
     table_name = data.get('table_name')
     columns = data.get('columns', '*')  # Default to all columns if not specified
+    include_summary = data.get('summary', False)  # Get summary boolean parameter, default to False
     
     if not query or not table_name:
         return jsonify({'error': 'Missing required fields: query or table_name'}), 400
@@ -475,7 +476,7 @@ Return only the SQL query without any explanation."""
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.3,
-                max_tokens=500
+                max_tokens=5000
             )
             
             # Extract the SQL query from the response
@@ -495,14 +496,43 @@ Return only the SQL query without any explanation."""
         # Connect to the database and execute the query
         try:
             # Initialize the connection manager with our connection string
-            DBConnectionManager.initialize(conn_str)
+            # DBConnectionManager.initialize(conn_str)
+            # Validate that the SQL query is read-only before execution
+            sql_lower = generated_sql.lower().strip()
+            
+            # Check if the query starts with select and doesn't contain any data modification keywords
+            if not sql_lower.startswith('select'):
+                return jsonify({
+                    'success': False,
+                    'message': 'Security error: Only SELECT queries are allowed',
+                    'query': query,
+                    'table_name': table_name,
+                    'generated_sql': generated_sql
+                }), 403
+                
+            # Check for potentially dangerous operations
+            dangerous_keywords = ['insert', 'update', 'delete', 'drop', 'alter', 'truncate', 
+                                 'create', 'exec', 'execute', 'sp_', 'xp_']
+            
+            for keyword in dangerous_keywords:
+                if keyword in sql_lower.split():
+                    return jsonify({
+                        'success': False,
+                        'message': f'Security error: Dangerous operation detected: {keyword}',
+                        'query': query,
+                        'table_name': table_name,
+                        'generated_sql': generated_sql
+                    }), 403
+            
             # Get the singleton instance
             db_manager = DBConnectionManager.get_instance()
-            # Execute the generated SQL query using the select method
+            
+            # Execute the validated SQL query using the select method
             results = db_manager.select(generated_sql)
             db_manager.close()
             
-            return jsonify({
+            # Prepare the response
+            response_data = {
                 'success': True,
                 'message': 'Database search completed',
                 'query': query,
@@ -510,7 +540,13 @@ Return only the SQL query without any explanation."""
                 'columns': columns,
                 'generated_sql': generated_sql,  # Include the generated SQL for transparency
                 'results': results
-            })
+            }
+            
+            # Only include summary if explicitly requested
+            if include_summary:
+                response_data['summary'] = convert_db_result_to_human(results, query)
+            
+            return jsonify(response_data)
             
         except Exception as db_error:
             # Return an error if database execution fails
@@ -523,7 +559,6 @@ Return only the SQL query without any explanation."""
             }), 500
             
     except Exception as e:
-        raise e
         # Handle any errors that occur during the OpenAI API call
         return jsonify({
             'success': False,
@@ -531,6 +566,35 @@ Return only the SQL query without any explanation."""
             'query': query,
             'table_name': table_name
         }), 500
+
+
+def convert_db_result_to_human(db_result, user_question):
+    from openai import AzureOpenAI
+    
+    # Clean initialization with only required parameters
+    client = AzureOpenAI(
+        azure_endpoint=AZURE_OPENAI_ENDPOINT,
+        api_key=AZURE_OPENAI_KEY,
+        api_version="2023-05-15"
+    )
+
+    
+    # Generate SQL from natural language query
+    response = client.chat.completions.create(
+        model=AZURE_OPENAI_DEPLOYMENT,
+        messages=[
+            {"role": "system", "content": f"You need to take the user question and db results and return human readdable text to give a summary of the db results"},
+            {"role": "user", "content": f"You have this user question {user_question} and the database query result return humman text that reacap the results this is the db results: {db_result}"}
+        ],
+        temperature=0.3,
+        max_tokens=5000
+    )
+    
+    # Extract the SQL query from the response
+    generated_sql = response.choices[0].message.content.strip()
+    
+    # Remove any markdown code block formatting if present
+    return generated_sql
 
 if __name__ == '__main__':
     app.run(debug=False)
