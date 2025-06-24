@@ -1,0 +1,176 @@
+{
+	"info": {
+		"_postman_id": "a366b8aa-6b4c-4422-9bd8-4286f9f97f37",
+		"name": "IPMagix Python",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31541344"
+	},
+	"item": [
+		{
+			"name": "Upload Document",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Compound-ID",
+						"value": "2",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/Laptop/Downloads/IPMagix Hackathon Guide-filled.pdf"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://backend-prem-python-v5-dfadggaxfqhpdnbh.westus2-01.azurewebsites.net/api/index-documents",
+					"protocol": "https",
+					"host": [
+						"backend-prem-python-v5-dfadggaxfqhpdnbh",
+						"westus2-01",
+						"azurewebsites",
+						"net"
+					],
+					"path": [
+						"api",
+						"index-documents"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search Database",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"table_name\": \"ipx_b_products\",\n    \"query\": \"list top 10 products\",\n    \"columns\": []\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://backend-prem-python-v5-dfadggaxfqhpdnbh.westus2-01.azurewebsites.net/api/search-database",
+					"protocol": "https",
+					"host": [
+						"backend-prem-python-v5-dfadggaxfqhpdnbh",
+						"westus2-01",
+						"azurewebsites",
+						"net"
+					],
+					"path": [
+						"api",
+						"search-database"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search Documents",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-compound-id",
+						"value": "1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"query\": \"How long is the agreement Project Helix\",\n  \"documentIds\": [\n    10\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://backend-prem-python-v5-dfadggaxfqhpdnbh.westus2-01.azurewebsites.net/api/search-documents",
+					"protocol": "https",
+					"host": [
+						"backend-prem-python-v5-dfadggaxfqhpdnbh",
+						"westus2-01",
+						"azurewebsites",
+						"net"
+					],
+					"path": [
+						"api",
+						"search-documents"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Search Documents",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-compound-id",
+								"value": "1",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"How long is the agreement Project Helix\",\n  \"documentIds\": [\n    10\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://backend-prem-python-v5-dfadggaxfqhpdnbh.westus2-01.azurewebsites.net/api/search-documents",
+							"protocol": "https",
+							"host": [
+								"backend-prem-python-v5-dfadggaxfqhpdnbh",
+								"westus2-01",
+								"azurewebsites",
+								"net"
+							],
+							"path": [
+								"api",
+								"search-documents"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Length",
+							"value": "208"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 22 Jun 2025 10:07:19 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Werkzeug/3.1.3 Python/3.11.13"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"answer\": \"The confidentiality agreement for Project Helix is valid for 7 years [doc1].\",\n    \"message\": \"Search completed\",\n    \"query\": \"How long is the agreement Project Helix\",\n    \"sources\": {\n        \"10_1\": null\n    },\n    \"success\": true\n}"
+				}
+			]
+		}
+	]
+}

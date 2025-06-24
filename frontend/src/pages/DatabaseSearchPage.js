@@ -4,7 +4,9 @@ import {
   Card, 
   CardContent, 
   CardHeader, 
+  Checkbox,
   FormControl,
+  FormControlLabel,
   InputLabel,
   MenuItem,
   Paper,
@@ -25,6 +27,8 @@ const DatabaseSearchPage = () => {
   const [tableName, setTableName] = useState('');
   const [columns, setColumns] = useState([]);
   const [results, setResults] = useState([]);
+  const [summary, setSummary] = useState('');
+  const [summaryAnswer, setSummaryAnswer] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
@@ -56,15 +60,40 @@ const DatabaseSearchPage = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await searchDatabase(query, tableName, columns.length > 0 ? columns : undefined);
-      if (response && response.data && response.data.results) {
-        setResults(response.data.results);
+      const response = await searchDatabase(query, tableName, columns.length > 0 ? columns : undefined, summaryAnswer);
+      if (response && response.data) {
+        if (response.data.results) {
+          setResults(response.data.results);
+        } else {
+          setResults([]);
+        }
+        
+        if (response.data.summary) {
+          setSummary(response.data.summary);
+        } else {
+          setSummary('');
+        }
       } else {
         setResults([]);
+        setSummary('');
       }
     } catch (error) {
       console.error('Database search error:', error);
-      setError('Failed to execute database search. Please try again.');
+      
+      // Check if the error response contains a JSON error message
+      if (error.response && error.response.data) {
+        // Extract message from the error response if available
+        if (error.response.data.message) {
+          setError(`Error: ${error.response.data.message}`);
+        } else if (typeof error.response.data === 'string') {
+          setError(`Error: ${error.response.data}`);
+        } else {
+          setError(`Error (${error.response.status}): Failed to execute database search`);
+        }
+      } else {
+        // Fallback to generic error message
+        setError('Failed to execute database search. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -155,6 +184,19 @@ const DatabaseSearchPage = () => {
               </FormControl>
             )}
             
+            {/* Summary Checkbox */}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={summaryAnswer}
+                  onChange={(e) => setSummaryAnswer(e.target.checked)}
+                  name="summaryCheckbox"
+                  color="primary"
+                />
+              }
+              label="Include summary in results"
+            />
+            
             {/* Error message */}
             {error && <div style={{ color: 'red' }}>{error}</div>}
             
@@ -174,6 +216,11 @@ const DatabaseSearchPage = () => {
           {results.length > 0 && (
             <div style={{ marginTop: '30px' }}>
               <h3>Search Results</h3>
+              {summaryAnswer && summary && (
+                <div style={{ marginBottom: '20px', padding: '10px', backgroundColor: '#f5f5f5', borderRadius: '4px' }}>
+                  <p><strong>Summary:</strong> {summary}</p>
+                </div>
+              )}
               <TableContainer component={Paper}>
                 <Table>
                   {renderTableHeaders()}

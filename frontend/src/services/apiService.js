@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an axios instance with direct URL to Flask backend
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',  // Direct URL to Flask server on port 5001
+  baseURL: 'https://backend-prem-python-v5-dfadggaxfqhpdnbh.westus2-01.azurewebsites.net/api',  // Direct URL to Flask server on port 5001
   headers: {
     'Content-Type': 'application/json'
   },
@@ -104,9 +104,9 @@ export const searchDepartmentDocuments = (query, departmentId, compoundId) =>
     { query }, 
     { headers: { 'X-Compound-ID': compoundId } }
   );
-export const searchDatabase = (query, tableName, columns) => 
+export const searchDatabase = (query, tableName, columns, summaryAnswer) => 
   api.post('/search-database', 
-    { query, table_name: tableName, columns }
+    { query, table_name: tableName, columns, summary: summaryAnswer }
   );
 
 // Utility to update the selected compound in localStorage
